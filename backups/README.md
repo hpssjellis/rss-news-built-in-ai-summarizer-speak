@@ -13,7 +13,7 @@ and these in order are the tests.
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss00.html   Stable backup  
 
 .
-
+# For Desktop and Laptop Chrome Built in AI able
 
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss01.html  New Stable  OCt 2 2025  First good working page 
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss02.html   
@@ -35,3 +35,24 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss17
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss18.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss19.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss2.html   
+
+
+For mobile without any LLM
+
+
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news00.html     Most stable  
+
+
+.
+
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news01.html     Most stable COt 2nd, 2025
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news02.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news03.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news04.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news05.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news06.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news07.html   
+
+
+
+

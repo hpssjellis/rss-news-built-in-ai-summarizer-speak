@@ -37,7 +37,7 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss19
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss2.html   
 
 
-For mobile without any LLM
+## For mobile without any LLM
 
 
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news00.html     Most stable  

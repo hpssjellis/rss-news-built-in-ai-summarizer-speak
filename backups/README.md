@@ -25,8 +25,8 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss07
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss08.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss09.html    New Stable Oct 2, 2025  
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss10.html    bad trying again   
-https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss11.html   
-https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss12.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss11.html    latest new stable
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss12.html    trying to add a mobile version
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss13.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss14.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss15.html   

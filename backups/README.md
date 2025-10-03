@@ -23,5 +23,15 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss05
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss06.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss07.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss08.html   
-https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss00.html   
-https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss1.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss09.html    New Stable Oct 2, 2025
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss10.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss11.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss12.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss13.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss14.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss15.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss16.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss17.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss18.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss19.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss2.html   

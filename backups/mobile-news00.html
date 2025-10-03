@@ -407,6 +407,12 @@
             myStatus.textContent = 'Finished speaking.';
             myDynamicStatus.textContent = 'Finished timing.';
             mySetButtonStates(false, false);
+
+            // LOGIC: If both auto-load and auto-speak are checked, proceed to the next feed
+            if (myAutoLoadCheckbox.checked && myAutoSpeakCheckbox.checked && myCurrentFeedIndex !== -1) {
+                // Delay slightly before fetching the next feed to ensure resources are free
+                setTimeout(myProcessFeedsLoop, 500); 
+            }
         };
 
         myUtterance.onerror = (event) => {
@@ -603,8 +609,11 @@ ${myCleanedDescription}
                 mySpeakText();
             }
             
-            // Auto-load logic runs regardless of speaking status, scheduled for 500ms delay.
-            if (myAutoLoadCheckbox.checked && myCurrentFeedIndex !== -1) {
+            // Auto-load logic runs immediately ONLY if auto-speak is NOT checked.
+            // If auto-speak IS checked, myUtterance.onend handles the next loop trigger.
+            const myAutoLoadOnly = myAutoLoadCheckbox.checked && !myAutoSpeakCheckbox.checked;
+
+            if (myAutoLoadOnly && myCurrentFeedIndex !== -1) {
                  // Schedule the next load without blocking the current async function
                  setTimeout(myProcessFeedsLoop, 500); 
             }
@@ -626,10 +635,6 @@ ${myCleanedDescription}
      * Handles when the user manually changes the select box.
      */
     function myHandleUserFeedChange() {
-        // You commented these out to ensure manual selection doesn't immediately stop speech:
-        //mySpeechBuffer.value = '';
-        // myStopSpeech();
-        
         // Clear the active URL to stop any currently running extraction loop gently
         myActiveRssUrl = null; 
         
@@ -643,7 +648,7 @@ ${myCleanedDescription}
 
         const myRssUrl = myFeedSelect.value;
         if (myRssUrl) {
-            // Find the index of the manually selected feed to start auto-looping from there
+            // Find the index of the manually selected feed to set the starting point
             myCurrentFeedIndex = myAllFeedUrls.indexOf(myRssUrl); 
             myFetchFeed(myRssUrl);
         } else {
@@ -654,30 +659,41 @@ ${myCleanedDescription}
     
     /**
      * Handles the iterative logic for auto-loading the next feed.
+     * This version is updated to stop after one full cycle through all feeds.
      */
     function myProcessFeedsLoop() {
         if (!myAutoLoadCheckbox.checked || myIsProcessing) {
             return;
         }
 
-        // If myCurrentFeedIndex is -1 (initial state), start from the beginning (0).
-        // Otherwise, increment and wrap around.
-        if (myCurrentFeedIndex === -1) {
-            myCurrentFeedIndex = 0;
-        } else {
-            myCurrentFeedIndex = (myCurrentFeedIndex + 1) % myAllFeedUrls.length;
+        const myTotalFeeds = myAllFeedUrls.length;
+        if (myTotalFeeds === 0) {
+            myStopTimer("No feeds available for auto-loading.");
+            return;
+        }
+        
+        // Calculate the index of the feed to fetch NEXT.
+        let myNextIndex = myCurrentFeedIndex + 1;
+
+        // Check if the loop is complete (i.e., we're trying to advance past the last feed index)
+        if (myNextIndex >= myTotalFeeds) {
+            // We have completed a full cycle. Stop and reset.
+            myAutoLoadCheckbox.checked = false;
+            myCurrentFeedIndex = -1; // Reset index to the initial state
+            myFeedSelect.value = ''; // Clear selection
+            myStopTimer("Auto-load finished one complete cycle of all feeds and stopped.");
+            return;
         }
 
-        if (myAllFeedUrls.length > 0) {
-            const myNextUrl = myAllFeedUrls[myCurrentFeedIndex];
-            
-            // Set the select box value to reflect the current auto-loaded feed
-            myFeedSelect.value = myNextUrl;
-            
-            myFetchFeed(myNextUrl);
-        } else {
-            myStopTimer("No feeds available for auto-loading.");
-        }
+        // If we are here, we are continuing the loop.
+        myCurrentFeedIndex = myNextIndex;
+
+        const myNextUrl = myAllFeedUrls[myCurrentFeedIndex];
+        
+        // Set the select box value to reflect the current auto-loaded feed
+        myFeedSelect.value = myNextUrl;
+        
+        myFetchFeed(myNextUrl);
     }
     
     // =========================================================================
@@ -699,13 +715,32 @@ ${myCleanedDescription}
     // Add event listener for auto-load checkbox to start the loop immediately if checked
     myAutoLoadCheckbox.onchange = function() {
         if (this.checked) {
-            // If Auto-Load is checked, start the loop immediately
-            myProcessFeedsLoop();
+            // If the index is -1, it means we are starting a new loop. 
+            // If the user had a feed selected, start the new cycle from that point.
+            if (myCurrentFeedIndex === -1 && myFeedSelect.value) {
+                myCurrentFeedIndex = myAllFeedUrls.indexOf(myFeedSelect.value) - 1; // Subtract 1 so myProcessFeedsLoop() increments to the start feed
+            }
+            
+            // If Auto-Load is checked AND Auto-Speak is NOT checked, start the loop immediately
+            if (!myAutoSpeakCheckbox.checked) {
+                 myProcessFeedsLoop();
+            }
         } else {
-             // Reset index on manual stop
-            myCurrentFeedIndex = myFeedSelect.value ? myAllFeedUrls.indexOf(myFeedSelect.value) : -1;
+             // Reset index only if stopped manually and no feed is selected
+             if (!myFeedSelect.value) {
+                myCurrentFeedIndex = -1;
+             }
         }
     };
+    
+    // Add event listener for auto-speak checkbox
+    myAutoSpeakCheckbox.onchange = function() {
+        // If the user checks auto-speak while auto-load is checked, and we are not processing, start the loop.
+        if (myAutoLoadCheckbox.checked && myAutoSpeakCheckbox.checked && !myIsProcessing) {
+            myProcessFeedsLoop();
+        }
+    };
+
 
 </script>
 

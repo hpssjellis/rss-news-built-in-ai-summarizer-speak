@@ -662,10 +662,10 @@
      */
     function myHandleUserFeedChange() {
         // Clear the speech buffer immediately to prevent old text from being resumed
-        mySpeechBuffer.value = '';
+        //mySpeechBuffer.value = '';
         
         // IMPORTANT: Stop the speech if the user manually changes the feed.
-        myStopSpeech();
+       // myStopSpeech();
         
         // FIX: Clear the active URL to stop any currently running summarization loop gently
         myActiveRssUrl = null; 

@@ -356,17 +356,17 @@
     function mySpeakText() {
      //   myStopSpeech(); // Stop any existing speech before starting a new one
 
-                // NEW: Transfer content to the buffer and clear the main output area
-        mySpeechBuffer.value = myTextToSpeak; 
-        mySummaryOutputArea.value = ''; // Clear main output as content has moved
+
         
-        const myTextToSpeak = mySpeechBuffer.value;
+        const myTextToSpeak = mySummaryOutputArea.value;
         if (!myTextToSpeak.trim()) {
             myStatus.textContent = 'Nothing to speak.';
             return;
         }
         
-
+                // NEW: Transfer content to the buffer and clear the main output area
+        mySpeechBuffer.value = myTextToSpeak; 
+        mySummaryOutputArea.value = ''; // Clear main output as content has moved
 
         // TTS Cleanup: (Operating on mySpeechBuffer.value)
         // 1. Remove the lines of hyphens (dashes), quotes, and asterisks.

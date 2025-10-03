@@ -10,7 +10,11 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss00
 
 
 and these in order are the tests.
-https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss00.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss00.html   Stable backup  
+
+.
+
+
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss01.html  New Stable  OCt 2 2025  First good working page 
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss02.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss03.html   

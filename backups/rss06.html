@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Reader, Summarizer, and Speaker</title>
+    <style>
+        /* Minimal CSS as requested, primarily for layout and readability */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .myContainer {
+            max-width: 800px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px; /* Using rounded corners as best practice */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #4CAF50;
+            margin-top: 20px;
+        }
+        select, button, input[type="text"], textarea {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .myControlGroup {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .myControlGroup button {
+            flex-grow: 1;
+            width: auto;
+        }
+        #myStatus {
+            font-weight: bold;
+            padding: 10px;
+            background-color: #e0f7fa;
+            border-left: 5px solid #00bcd4;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        #mySummaryOutputArea {
+            min-height: 200px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: #fafafa;
+        }
+        /* Custom list styling for article links */
+        #myLinksHistoryContainer ol { /* Targeting ol inside the new container */
+            padding-left: 20px;
+            margin: 0;
+            list-style: decimal;
+        }
+        #myLinksHistoryContainer li { /* Targeting li inside the new container */
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="myContainer">
+    <h1>AI-Powered News Summarizer & Speaker</h1>
+
+    <!-- Chrome AI Flag Reminder moved to the top and simplified -->
+    <div style="font-style: italic; margin-bottom: 20px; padding: 15px; border: 1px dashed #ccc; border-radius: 5px;">
+        <p style="margin-top: 0;"><strong>Chrome Flags Reminder:</strong> To use the Summarizer (AI) feature, you must enable the "Enable built-in AI" flag in Chrome:</p>
+        <input type="text" id="myFlagsLink" value="chrome://flags/#enable-built-in-ai" readonly
+            style="cursor: pointer; background-color: #f0f0f0; width: 100%; padding: 8px;"
+            onclick="myCopyFlagsLink()">
+    </div>
+
+    <!-- Feeds Selection and Control -->
+    <div class="myControlGroup">
+        <label for="myFeedSelect" style="width: 100%; font-weight: bold; margin-bottom: 0;">Select News Feed:</label>
+        <select id="myFeedSelect" onchange="myHandleUserFeedChange()" style="flex: 3;">
+            <option value="">-- Choose a Feed --</option>
+            <optgroup label="🇨🇦 Canadian General News">
+                <option value="https://globalnews.ca/feed/">Global News - National</option>
+                <option value="https://www.cbc.ca/webfeed/rss/rss-business">CBC News - Business</option>
+                <option value="https://www.cbc.ca/webfeed/rss/rss-topstories">CBC News - Top Stories</option>
+            </optgroup>
+            <optgroup label="🌍 World News & Politics">
+                <option value="http://feeds.bbci.co.uk/news/world/rss.xml">BBC News - World</option>
+                <option value="https://www.cbc.ca/webfeed/rss/rss-world">CBC News - World</option>
+                <option value="https://www.theguardian.com/world/rss">The Guardian - World</option>
+            </optgroup>
+            <optgroup label="🔬 Science & Technology">
+                <option value="https://www.wired.com/feed/rss">WIRED - Latest Stories</option>
+                <option value="https://www.cbc.ca/webfeed/rss/rss-technology">CBC News - Technology</option>
+            </optgroup>
+            <optgroup label="💻 Web Development">
+                <option value="https://css-tricks.com/feed">CSS-Tricks</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <!-- Auto Controls -->
+    <div class="myControlGroup" style="gap: 20px;">
+        <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
+            <input type="checkbox" id="myAutoLoadCheckbox" style="width: auto; margin-right: 5px; margin-bottom: 0;">
+            Auto Load Next Feed
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
+            <input type="checkbox" id="myAutoSpeakCheckbox" style="width: auto; margin-right: 5px; margin-bottom: 0;">
+            Auto Speak Summaries
+        </label>
+    </div>
+
+    <!-- Status and Output Area -->
+    <h2>Status & Output</h2>
+    <!-- Dynamic Timer Status for real-time update -->
+    <p id="myDynamicStatus" style="font-style: italic; color: #555; margin-bottom: 5px;">Ready for processing.</p>
+    <!-- Existing Status for final messages -->
+    <p id="myStatus">Ready. Select a feed to begin, or enable auto-load.</p>
+    
+    <textarea id="mySummaryOutputArea" readonly placeholder="Summaries will be appended here."></textarea>
+
+    <!-- Links Output Area - Now a scrollable container for history sections -->
+    <h2>Article Links History</h2>
+    <div id="myLinksHistoryContainer" style="border: 1px solid #ddd; padding: 10px; border-radius: 6px; min-height: 50px; background-color: #fafafa; max-height: 400px; overflow-y: auto;">
+        <p id="myLinksPlaceholder" style="color: #999; margin: 0;">Links will appear here after summarization.</p>
+    </div>
+
+    <!-- TTS Controls -->
+    <h2>Text-to-Speech Controls</h2>
+    <div class="myControlGroup">
+        <select id="myVoiceSelect" style="flex: 2; margin-bottom: 0;"></select>
+        <button id="mySpeakButton" onclick="mySpeakText()" style="flex: 1; color: white; background-color: #4CAF50; border: none;">Speak Output</button>
+        <button id="myPauseButton" onclick="myPauseSpeech()" disabled style="flex: 1; color: white; background-color: #007bff; border: none;">Pause</button>
+        <button id="myResumeButton" onclick="myResumeSpeech()" disabled style="flex: 1; color: white; background-color: #2196F3; border: none;">Resume</button>
+        <button id="myStopButton" onclick="myStopSpeech()" disabled style="flex: 1; color: white; background-color: #dc3545; border: none;">Stop</button>
+    </div>
+    
+    <!-- Debug Controls -->
+    <h2>Debug Controls</h2>
+    <div class="myControlGroup">
+        <button id="myToggleDebugButton" onclick="myToggleDebugJson()" style="color: white; background-color: #ff9800; border: none; flex: 1;">Show/Hide Raw JSON Feed</button>
+        <button id="myClearLinksButton" onclick="myClearArticleLinks()" style="color: white; background-color: #dc3545; border: none; flex: 1;">Clear Article History</button>
+    </div>
+    <textarea id="myJsonDebugOutput" readonly placeholder="Raw JSON data of the current feed will appear here for debugging."
+        style="min-height: 100px; display: none; font-size: 12px; margin-bottom: 20px; font-family: monospace;"></textarea>
+    
+    <hr style="margin: 40px 0;">
+    <div>
+        <h2>My GitHub</h2>
+        <p>You can find more of my work on my <a href="https://github.com/hpssjellis"> hpssjellis </a> GitHub page:</p>
+        <p> By Jeremy Ellis <a href="https://ca.linkedin.com/in/jeremy-ellis-4237a9bb"> LinkedIn </a><br></p>
+    </div>
+
+</div>
+
+<script>
+    // =========================================================================
+    // GLOBAL CONFIGURATION AND STATE
+    // =========================================================================
+    const myConverterUrl = 'https://api.rss2json.com/v1/api.json?rss_url=';
+    const myMaxItemsToSummarize = 5; // Limit to 5 items per feed for speed
+
+    let myTimerInterval = null;
+    let mySummarizer = null; // Chrome Summarizer Object
+    let myIsProcessing = false;
+
+    // TTS Globals
+    let mySpeechSynthesis = window.speechSynthesis;
+    let myUtterance = null;
+
+    // Auto-Load Globals
+    let myAllFeedUrls = []; // Stores all selectable URLs for auto-looping
+    let myCurrentFeedIndex = -1;
+
+    // DOM Elements
+    const myFeedSelect = document.getElementById('myFeedSelect');
+    const mySummaryOutputArea = document.getElementById('mySummaryOutputArea');
+    const myStatus = document.getElementById('myStatus');
+    const myDynamicStatus = document.getElementById('myDynamicStatus');
+    // myLinksOutput now refers to the main container for link history
+    const myLinksOutput = document.getElementById('myLinksHistoryContainer'); 
+    const myAutoLoadCheckbox = document.getElementById('myAutoLoadCheckbox');
+    const myAutoSpeakCheckbox = document.getElementById('myAutoSpeakCheckbox');
+    
+    // Debug Element
+    const myJsonDebugOutput = document.getElementById('myJsonDebugOutput');
+    
+    // TTS Buttons
+    const mySpeakButton = document.getElementById('mySpeakButton');
+    const myPauseButton = document.getElementById('myPauseButton');
+    const myResumeButton = document.getElementById('myResumeButton');
+    const myStopButton = document.getElementById('myStopButton');
+    const myVoiceSelect = document.getElementById('myVoiceSelect');
+
+
+    // =========================================================================
+    // UTILITY FUNCTIONS (Timer, Flags Link, Debug Toggle, Link Clear)
+    // =========================================================================
+
+    /**
+     * Starts a simple timer to show activity. Updates the dynamic status element.
+     */
+    function myStartTimer() {
+        let mySeconds = 0;
+        myDynamicStatus.textContent = "Processing... 0s"; 
+        myTimerInterval = setInterval(() => {
+            mySeconds++;
+            myDynamicStatus.textContent = `Processing... ${mySeconds}s`; // Update dynamic status
+        }, 1000);
+    }
+
+    /**
+     * Stops the timer and sets the final status message.
+     * Updates myDynamicStatus to show the timing has finished.
+     * @param {string} myMessage The final status message for myStatus.
+     */
+    function myStopTimer(myMessage) {
+        if (myTimerInterval) {
+            clearInterval(myTimerInterval);
+            myTimerInterval = null;
+        }
+        myStatus.textContent = myMessage; // Keep myStatus for the final message
+        myDynamicStatus.textContent = "Finished timing."; // Mark dynamic status as done
+    }
+
+    /**
+     * Helper function to copy the flags link.
+     */
+    function myCopyFlagsLink() {
+        const myFlagsInput = document.getElementById('myFlagsLink');
+        myFlagsInput.select();
+        myFlagsInput.setSelectionRange(0, 99999);
+        document.execCommand('copy'); 
+    }
+    
+    /**
+     * Toggles the visibility of the raw JSON debug output area.
+     */
+    function myToggleDebugJson() {
+        const myDisplayStyle = myJsonDebugOutput.style.display;
+        myJsonDebugOutput.style.display = myDisplayStyle === 'none' ? 'block' : 'none';
+        
+        // If the debug area is now visible, ensure the scroll is at the top
+        if (myJsonDebugOutput.style.display === 'block') {
+            myJsonDebugOutput.scrollTop = 0;
+        }
+    }
+    
+    /**
+     * Clears the article link history from the output container and restores the placeholder.
+     */
+    function myClearArticleLinks() {
+        // Clear all children from the container
+        myLinksOutput.innerHTML = ''; 
+        
+        // Restore placeholder
+        const myPlaceholder = document.createElement('p');
+        myPlaceholder.id = 'myLinksPlaceholder';
+        myPlaceholder.style.color = '#999';
+        myPlaceholder.style.margin = '0';
+        myPlaceholder.textContent = 'Links will appear here after summarization.';
+        
+        myLinksOutput.appendChild(myPlaceholder);
+        myStatus.textContent = 'Article history cleared.';
+    }
+
+
+    // =========================================================================
+    // TEXT-TO-SPEECH (TTS) LOGIC
+    // =========================================================================
+
+    /**
+     * Sets the disabled/enabled state of the TTS control buttons.
+     * @param {boolean} speaking True if speech is currently ongoing.
+     * @param {boolean} paused True if speech is currently paused.
+     */
+    function mySetButtonStates(speaking, paused) {
+        mySpeakButton.disabled = speaking || paused;
+        myPauseButton.disabled = !speaking || paused;
+        myResumeButton.disabled = !paused;
+        myStopButton.disabled = !speaking && !paused;
+    }
+
+    /**
+     * Populates the voice list dropdown with available browser voices.
+     */
+    function myPopulateVoiceList() {
+        const myVoices = mySpeechSynthesis.getVoices();
+        myVoiceSelect.innerHTML = '';
+        myVoices.forEach(voice => {
+            const myOption = document.createElement('option');
+            myOption.textContent = `${voice.name} (${voice.lang})`;
+            myOption.value = voice.name;
+            myVoiceSelect.appendChild(myOption);
+        });
+        // Set initial button states
+        mySetButtonStates(false, false);
+    }
+
+    // Call the function initially and also on the 'voiceschanged' event
+    myPopulateVoiceList();
+    if (mySpeechSynthesis.onvoiceschanged !== undefined) {
+        mySpeechSynthesis.onvoiceschanged = myPopulateVoiceList;
+    }
+
+    /**
+     * Speaks the text in the main output area after cleaning it.
+     */
+    function mySpeakText() {
+        myStopSpeech(); // Stop any existing speech before starting a new one
+        
+        const myTextToSpeak = mySummaryOutputArea.value;
+        if (!myTextToSpeak.trim()) {
+            myStatus.textContent = 'Nothing to speak.';
+            return;
+        }
+
+        // TTS Cleanup: Remove separator dashes and excessive newlines for smoother reading
+        // 1. Remove the lines of hyphens (dashes) and the quotes that surround the summary.
+        let myCleanedText = myTextToSpeak.replace(/-{50,}/g, '').trim(); 
+        // 2. Replace remaining newlines/quotes to ensure smooth flow for speech
+        myCleanedText = myCleanedText.replace(/[\n\r]/g, ' ').replace(/"/g, '').trim(); 
+        
+        myUtterance = new SpeechSynthesisUtterance(myCleanedText);
+
+        // Set the voice
+        const mySelectedVoiceName = myVoiceSelect.value;
+        const mySelectedVoice = mySpeechSynthesis.getVoices().find(voice => voice.name === mySelectedVoiceName);
+        if (mySelectedVoice) {
+            myUtterance.voice = mySelectedVoice;
+        }
+
+        myUtterance.onstart = () => {
+            myStatus.textContent = 'Speaking summaries...';
+            myDynamicStatus.textContent = 'Speaking...';
+            mySetButtonStates(true, false);
+        };
+
+        myUtterance.onend = () => {
+            myStatus.textContent = 'Finished speaking.';
+            myDynamicStatus.textContent = 'Finished timing.';
+            mySetButtonStates(false, false);
+
+            // Trigger next feed load if auto-load is checked (Logic for speaking and waiting is here)
+            if (myAutoLoadCheckbox.checked) {
+                 // Wait a short time to ensure onend completes before starting next loop
+                 setTimeout(myProcessFeedsLoop, 1000);
+            }
+        };
+
+        myUtterance.onerror = (event) => {
+            myStatus.textContent = `Error speaking: ${event.error}`;
+            myDynamicStatus.textContent = 'Error during speech.';
+            mySetButtonStates(false, false);
+            console.error('SpeechSynthesis Error:', event.error);
+        };
+
+        mySpeechSynthesis.speak(myUtterance);
+    }
+
+    /** Pauses the speech. */
+    function myPauseSpeech() {
+        if (mySpeechSynthesis.speaking) {
+            mySpeechSynthesis.pause();
+            myStatus.textContent = 'Paused.';
+            myDynamicStatus.textContent = 'Paused.';
+            mySetButtonStates(false, true);
+        }
+    }
+
+    /** Resumes the speech. */
+    function myResumeSpeech() {
+        if (mySpeechSynthesis.paused) {
+            mySpeechSynthesis.resume();
+            myStatus.textContent = 'Speaking summaries...';
+            myDynamicStatus.textContent = 'Speaking...';
+            mySetButtonStates(true, false);
+        }
+    }
+
+    /** Stops the speech. */
+    function myStopSpeech() {
+        mySpeechSynthesis.cancel();
+        myStatus.textContent = myIsProcessing ? 'Processing feed...' : 'Ready.';
+        myDynamicStatus.textContent = myIsProcessing ? 'Processing...' : 'Ready for processing.';
+        mySetButtonStates(false, false);
+    }
+
+
+    // =========================================================================
+    // CHROME AI SUMMARIZATION LOGIC
+    // =========================================================================
+
+    /**
+     * Initializes the Chrome Summarizer object if not already created.
+     */
+    async function myInitializeSummarizer() {
+        if (mySummarizer === null) {
+            if (!('Summarizer' in window)) {
+                throw new Error("Summarizer API (window.Summarizer) not found. Check Chrome version/flags.");
+            }
+            
+            myDynamicStatus.textContent = "Initializing AI model (first time setup/download)...";
+            const myOptions = {
+                type: 'key-points', 
+                length: 'short',   // Modified to request a shorter summary
+                language: 'en',
+            };
+            mySummarizer = await Summarizer.create(myOptions);
+        }
+    }
+
+
+    /**
+     * Summarizes a single RSS item's content to a short quote and appends it to the output area.
+     * @param {object} myItem The single RSS item object.
+     * @param {HTMLElement} myTargetOl The <ol> element to append the link to.
+     */
+    async function mySummarizeAndDisplayItem(myItem, myTargetOl) {
+        myStatus.textContent = `Summarizing: ${myItem.title.substring(0, 40)}...`; // Use myStatus for the item name
+        
+        try {
+            await myInitializeSummarizer();
+
+            // Use the description, or fallback to content/title
+            const myTextToSummarize = myItem.description || myItem.content || myItem.title;
+
+            // Step 2: Perform summarization
+            const mySummary = await mySummarizer.summarize(myTextToSummarize);
+            
+            // 1. Append the summary (quote only) to the output textarea
+            const myFormattedSummary = `
+--------------------------------------------------
+"${mySummary.trim()}"
+--------------------------------------------------
+`;
+            mySummaryOutputArea.value += myFormattedSummary;
+
+            // 2. Create the clickable list item element for the persistent list
+            const myListItem = document.createElement('li');
+            
+            const myAnchor = document.createElement('a');
+            myAnchor.href = myItem.link;
+            myAnchor.target = '_blank';
+            myAnchor.textContent = myItem.title; 
+            myAnchor.style.color = '#1a73e8';
+            myAnchor.style.textDecoration = 'underline';
+            
+            myListItem.appendChild(myAnchor);
+
+            // Append to the passed <ol> element
+            myTargetOl.appendChild(myListItem);
+
+        } catch (myError) {
+            console.error("Summarizer Error:", myError);
+            mySummaryOutputArea.value += `\n[ERROR SUMMARIZING: ${myItem.title}] - ${myError.message.split('\n')[0]}\n`;
+        }
+    }
+
+
+    // =========================================================================
+    // RSS FEED PROCESSING & AUTO-LOOP LOGIC
+    // =========================================================================
+
+    /**
+     * Fetches the RSS feed URL, converts it to JSON, and starts the summarization process.
+     * @param {string} rssUrl The URL of the RSS feed to fetch.
+     * @returns {void}
+     */
+    async function myFetchFeed(rssUrl) {
+        myIsProcessing = true;
+        mySummaryOutputArea.value = ''; // Always clear summary output for a new feed
+        myJsonDebugOutput.value = 'Fetching raw data...'; // Clear and indicate fetching
+        myStopSpeech(); // Stop speech if active
+
+        const myApiUrl = myConverterUrl + encodeURIComponent(rssUrl);
+        myStartTimer(); // Start dynamic timer
+        myStatus.textContent = `Fetching feed: ${rssUrl}...`;
+
+        try {
+            const myResponse = await fetch(myApiUrl);
+            if (!myResponse.ok) {
+                throw new Error(`HTTP error! Status: ${myResponse.status}`);
+            }
+            
+            // Read the response body as text first
+            const myRawText = await myResponse.text(); 
+            const myJsonData = JSON.parse(myRawText);
+
+            // Populate the debug area with formatted JSON
+            myJsonDebugOutput.value = JSON.stringify(myJsonData, null, 2);
+
+            if (myJsonData.status === 'error') {
+                 throw new Error(myJsonData.message || 'Error processing the feed.');
+            }
+
+            myStatus.textContent = `Processing ${myJsonData.feed.title}...`;
+
+            // --- NEW HISTORY BLOCK CREATION ---
+            // 1. Remove placeholder if it exists
+            const myPlaceholder = document.getElementById('myLinksPlaceholder');
+            if (myPlaceholder) {
+                myPlaceholder.remove();
+            }
+
+            // 2. Create the new feed section
+            const myFeedSection = document.createElement('div');
+            myFeedSection.style.marginBottom = '20px'; 
+            myFeedSection.style.paddingTop = '10px';
+            myFeedSection.style.borderTop = '1px dashed #ccc';
+
+            const myFeedTitleHeading = document.createElement('h3');
+            myFeedTitleHeading.textContent = myJsonData.feed.title;
+            myFeedTitleHeading.style.marginTop = '10px'; 
+            myFeedTitleHeading.style.color = '#1a73e8';
+            myFeedTitleHeading.style.fontSize = '1.1em';
+            myFeedTitleHeading.style.fontWeight = 'bold';
+
+            const myNewOrderedList = document.createElement('ol');
+
+            myFeedSection.appendChild(myFeedTitleHeading);
+            myFeedSection.appendChild(myNewOrderedList);
+
+            myLinksOutput.prepend(myFeedSection); // Prepend so newest feeds appear at the top
+            // --- END NEW HISTORY BLOCK CREATION ---
+            
+            const myItems = myJsonData.items || [];
+
+            // Loop and summarize the first few items sequentially
+            for (let i = 0; i < Math.min(myItems.length, myMaxItemsToSummarize); i++) {
+                // Pass the new <ol> to the summarization function
+                await mySummarizeAndDisplayItem(myItems[i], myNewOrderedList);
+            }
+
+            myStopTimer(`Feed '${myJsonData.feed.title}' processed. ${myItems.length} items found, ${Math.min(myItems.length, myMaxItemsToSummarize)} summarized.`);
+            
+            // Auto-Load/Auto-Speak Logic check
+            if (myAutoSpeakCheckbox.checked) {
+                // If speaking is checked, mySpeakText handles triggering the next load in myUtterance.onend
+                mySpeakText();
+            } else if (myAutoLoadCheckbox.checked && myCurrentFeedIndex !== -1) {
+                 // If auto-speak is OFF, we trigger the next load after a delay 
+                 await new Promise(resolve => setTimeout(resolve, 3000));
+                 myProcessFeedsLoop();
+            }
+
+        } catch (myError) {
+            console.error('Fetch/Processing error:', myError);
+            myStopTimer(`Error loading feed: ${myError.message.split('\n')[0]}`);
+            mySummaryOutputArea.value += `\n\n--- FEED ERROR ---\n${myError.error || myError.message}`;
+        } finally {
+            myIsProcessing = false;
+        }
+    }
+
+    /**
+     * Handles when the user manually changes the select box.
+     */
+    function myHandleUserFeedChange() {
+        myStopSpeech();
+        if (myIsProcessing) {
+            myStatus.textContent = 'A feed is currently being processed. Please wait.';
+            return;
+        }
+
+        const myRssUrl = myFeedSelect.value;
+        if (myRssUrl) {
+            // Find the index of the manually selected feed to start auto-looping from there
+            myCurrentFeedIndex = myAllFeedUrls.indexOf(myRssUrl); 
+            myFetchFeed(myRssUrl);
+        } else {
+            mySummaryOutputArea.value = 'Select a feed or enable "Auto Load" to begin.';
+            myStatus.textContent = 'Ready.';
+        }
+    }
+    
+    /**
+     * Handles the iterative logic for auto-loading the next feed.
+     */
+    function myProcessFeedsLoop() {
+        if (!myAutoLoadCheckbox.checked || myIsProcessing) {
+            return;
+        }
+
+        // If myCurrentFeedIndex is -1 (initial state), start from the beginning (0).
+        // Otherwise, increment and wrap around.
+        if (myCurrentFeedIndex === -1) {
+            myCurrentFeedIndex = 0;
+        } else {
+            myCurrentFeedIndex = (myCurrentFeedIndex + 1) % myAllFeedUrls.length;
+        }
+
+        if (myAllFeedUrls.length > 0) {
+            const myNextUrl = myAllFeedUrls[myCurrentFeedIndex];
+            
+            // Set the select box value to reflect the current auto-loaded feed
+            myFeedSelect.value = myNextUrl;
+            
+            myFetchFeed(myNextUrl);
+        } else {
+            myStopTimer("No feeds available for auto-loading.");
+        }
+    }
+    
+    // =========================================================================
+    // INITIALIZATION
+    // =========================================================================
+
+    /**
+     * Initializes the list of all feed URLs for auto-looping.
+     */
+    function myInitializeFeedUrls() {
+        myAllFeedUrls = Array.from(myFeedSelect.options)
+                             .filter(option => option.value && option.value !== "")
+                             .map(option => option.value);
+    }
+    
+    // Initialize feed URL list on page load
+    myInitializeFeedUrls();
+    
+    // Add event listener for auto-load checkbox to start the loop immediately if checked
+    myAutoLoadCheckbox.onchange = function() {
+        if (this.checked) {
+            // If Auto-Load is checked, start the loop immediately
+            myProcessFeedsLoop();
+        } else {
+             // Reset index on manual stop
+            myCurrentFeedIndex = myFeedSelect.value ? myAllFeedUrls.indexOf(myFeedSelect.value) : -1;
+        }
+    };
+
+</script>
+
+</body>
+</html>

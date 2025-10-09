@@ -614,10 +614,10 @@ ${myCleanedDescription}
             // If auto-speak IS checked, myUtterance.onend handles the next loop trigger.
             const myAutoLoadOnly = myAutoLoadCheckbox.checked && !myAutoSpeakCheckbox.checked;
 
-         //   if (myAutoLoadOnly && myCurrentFeedIndex !== -1) {
+            if (myAutoLoadOnly && myCurrentFeedIndex !== -1) {
                  // Schedule the next load without blocking the current async function
                  setTimeout(myProcessFeedsLoop, 500); 
-          //  }
+            }
 
         } catch (myError) {
             console.error('Fetch/Processing error:', myError);

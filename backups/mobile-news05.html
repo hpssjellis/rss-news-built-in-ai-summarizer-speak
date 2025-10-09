@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>News Reader and Speaker (Mobile Ready)</title>
+  <style>
+    /* Keep your existing styles as-is */
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+    }
+    .myContainer {
+      max-width: 800px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #1a73e8;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      color: #4CAF50;
+      margin-top: 20px;
+    }
+    select, button, input[type="text"], textarea {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    .myControlGroup {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .myControlGroup button {
+      flex-grow: 1;
+      width: auto;
+    }
+    #myStatus {
+      font-weight: bold;
+      padding: 10px;
+      background-color: #e0f7fa;
+      border-left: 5px solid #00bcd4;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    #mySummaryOutputArea {
+      min-height: 200px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      background-color: #fafafa;
+    }
+    #myLinksHistoryContainer ol {
+      padding-left: 20px;
+      margin: 0;
+      list-style: decimal;
+    }
+    #myLinksHistoryContainer li {
+      margin-bottom: 5px;
+      line-height: 1.4;
+    }
+    #mySpeechBuffer {
+      min-height: 100px;
+      font-size: 12px;
+      margin-bottom: 20px;
+      font-family: monospace;
+      border: 2px dashed #4CAF50;
+      background-color: #e8f5e9;
+    }
+  </style>
+</head>
+<body>
+
+<div class="myContainer">
+  <h1>News Reader and Speaker (Mobile Ready)</h1>
+
+  <!-- Feed Selection -->
+  <div class="myControlGroup">
+    <label for="myFeedSelect" style="width: 100%; font-weight: bold; margin-bottom: 0;">Select News Feed:</label>
+    <select id="myFeedSelect" onchange="myHandleUserFeedChange()" style="flex: 3;">
+      <option value="">-- Choose a Feed --</option>
+      <optgroup label="🇨🇦 Canadian General News">
+        <option selected value="https://globalnews.ca/feed/">Global News - National</option>
+        <option value="https://www.cbc.ca/webfeed/rss/rss-business">CBC News - Business</option>
+        <option value="https://www.cbc.ca/webfeed/rss/rss-topstories">CBC News - Top Stories</option>
+      </optgroup>
+      <optgroup label="🌍 World News & Politics">
+        <option value="http://feeds.bbci.co.uk/news/world/rss.xml">BBC News - World</option>
+        <option value="https://www.cbc.ca/webfeed/rss/rss-world">CBC News - World</option>
+        <option value="https://www.theguardian.com/world/rss">The Guardian - World</option>
+      </optgroup>
+      <optgroup label="🔬 Science & Technology">
+        <option value="https://www.wired.com/feed/rss">WIRED - Latest Stories</option>
+        <option value="https://www.cbc.ca/webfeed/rss/rss-technology">CBC News - Technology</option>
+      </optgroup>
+      <optgroup label="💻 Web Development">
+        <option value="https://css-tricks.com/feed">CSS-Tricks</option>
+      </optgroup>
+      <optgroup label="💸 Stock Market & Finance">
+        <option value="https://cnbc.com/id/10000664/device/rss/rss.html">CNBC - Business News</option>
+        <option value="https://seekingalpha.com/market_currents.xml">Seeking Alpha - Market News</option>
+      </optgroup>
+      <optgroup label="🎮 Gaming">
+        <option value="https://kotaku.com/rss">Kotaku - Gaming News</option>
+        <option value="https://www.polygon.com/rss/index.xml">Polygon - Gaming & Culture</option>
+      </optgroup>
+      <optgroup label="₿ Cryptocurrency">
+        <option value="https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml">CoinDesk - All News</option>
+        <option value="https://cointelegraph.com/rss">Cointelegraph - Latest News</option>
+      </optgroup>
+      <optgroup label="🤖 Artificial Intelligence & ML">
+        <option value="https://www.technologyreview.com/feed/">MIT Technology Review - AI</option>
+        <option value="https://machinelearningmastery.com/blog/feed/">Machine Learning Mastery</option>
+        <option value="https://towardsdatascience.com/feed">Towards Data Science</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <!-- Auto Controls -->
+  <div class="myControlGroup" style="gap: 20px;">      
+    <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
+      <input type="checkbox" id="myAutoSpeakCheckbox" style="width: auto; margin-right: 5px; margin-bottom: 0;">
+      Auto Speak Descriptions
+    </label>
+    <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
+      <input type="checkbox" id="myAutoLoadCheckbox" style="width: auto; margin-right: 5px; margin-bottom: 0;">
+      Auto Load Next Feed
+    </label>
+  </div>
+
+  <!-- Output Areas -->
+  <h2>Status & Output</h2>
+  <p id="myDynamicStatus" style="font-style: italic; color: #555; margin-bottom: 5px;">Ready for processing.</p>
+  <p id="myStatus">Ready. Select a feed to begin, or enable auto-load.</p>
+  <textarea id="mySummaryOutputArea" readonly placeholder="Article titles and descriptions will be appended here."></textarea>
+  <textarea id="mySpeechBuffer" readonly placeholder="Speech buffer (cleaned text) output." style="display: none;"></textarea>
+
+  <!-- Link History -->
+  <h2>Article Links History</h2>
+  <div id="myLinksHistoryContainer" style="border: 1px solid #ddd; padding: 10px; border-radius: 6px; min-height: 50px; background-color: #fafafa; max-height: 400px; overflow-y: auto;">
+    <p id="myLinksPlaceholder" style="color: #999; margin: 0;">Links will appear here after extraction.</p>
+  </div>
+
+  <!-- TTS Controls -->
+  <h2>Text-to-Speech Controls</h2>
+  <div class="myControlGroup">
+    <select id="myVoiceSelect" style="flex: 2; margin-bottom: 0;"></select>
+    <button id="mySpeakButton" onclick="mySpeakText()" style="flex: 1; color: white; background-color: #4CAF50; border: none;">Speak Output</button>
+    <button id="myPauseButton" onclick="myPauseSpeech()" disabled style="flex: 1; color: white; background-color: #007bff; border: none;">Pause</button>
+    <button id="myResumeButton" onclick="myResumeSpeech()" disabled style="flex: 1; color: white; background-color: #2196F3; border: none;">Resume</button>
+    <button id="

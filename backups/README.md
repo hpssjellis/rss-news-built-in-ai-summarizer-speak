@@ -43,7 +43,7 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/rss2.
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news00.html     Most stable  
 
 
-.
+.Note should onunload stop the speak function.
 
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news01.html     Most stable Oct 2nd, 2025  
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news02.html     New Stable  

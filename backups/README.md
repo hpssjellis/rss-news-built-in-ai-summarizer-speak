@@ -48,8 +48,8 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobil
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news01.html     Most stable Oct 2nd, 2025  
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news02.html     New Stable  
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news03.html     added link to main page  
-https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news04.html    
-https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news05.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news04.html      bad  
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news05.html      bad   (the issue is autoloading without breaking the ohter abilities)  
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news06.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news07.html   
 

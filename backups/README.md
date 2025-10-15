@@ -52,6 +52,8 @@ https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobil
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news05.html      bad   (the issue is autoloading without breaking the ohter abilities)  
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news06.html   
 https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news07.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news08.html   
+https://hpssjellis.github.io/rss-news-built-in-ai-summarizer-speak/backups/mobile-news09.html   looks promising. test then make stable      
 
 
 

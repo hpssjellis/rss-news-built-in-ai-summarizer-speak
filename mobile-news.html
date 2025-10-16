@@ -46,7 +46,7 @@
             align-items: center;
         }
         .myControlGroup button {
-            flex-grow = 1;
+            flex-grow: 1;
             width: auto;
         }
         #myStatus {
@@ -64,12 +64,24 @@
             background-color: #fafafa;
         }
         /* Custom list styling for article links */
-        #myLinksHistoryContainer ol { /* Targeting ol inside the new container */
+        #myLinksHistoryContainer {
+            /* Existing styles */
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 6px;
+            min-height: 50px;
+            background-color: #fafafa;
+            max-height: 400px; 
+            /* NEW STYLES for resizable container */
+            resize: vertical; /* Allows vertical resizing */
+            overflow: auto; /* Required for the resize handle to appear and for content scrolling */
+        }
+        #myLinksHistoryContainer ol { 
             padding-left: 20px;
             margin: 0;
             list-style: decimal;
         }
-        #myLinksHistoryContainer li { /* Targeting li inside the new container */
+        #myLinksHistoryContainer li { 
             margin-bottom: 5px;
             line-height: 1.4;
         }
@@ -89,15 +101,12 @@
 <div class="myContainer">
     <h1>News Reader and Speaker (Mobile Ready)</h1>
 
-    <!-- Chrome AI Flag Reminder removed as LLM functionality is removed for mobile compatibility -->
-
     <!-- Feeds Selection and Control -->
     <div class="myControlGroup">
         <label for="myFeedSelect" style="width: 100%; font-weight: bold; margin-bottom: 0;">Select News Feed:</label>
         <select id="myFeedSelect" onchange="myHandleUserFeedChange()" style="flex: 3;">
-          <option value="">-- Choose a Feed --</option>
-      
-
+          <option value="" selected >-- Choose a Feed --</option>
+          
         <optgroup label="🇨🇦 Canadian General News">
             <option value="https://globalnews.ca/feed/">Global News - National</option>
             <option value="https://www.cbc.ca/webfeed/rss/rss-business">CBC News - Business</option>
@@ -143,15 +152,16 @@
     </div>
 
     <!-- Auto Controls -->
-    <div class="myControlGroup" style="gap: 20px;">
-        <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
-            <input type="checkbox" id="myAutoLoadCheckbox" style="width: auto; margin-right: 5px; margin-bottom: 0;">
-            Auto Load Next Feed
-        </label>
+    <div class="myControlGroup" style="gap: 20px;">      
         <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
             <input type="checkbox" id="myAutoSpeakCheckbox" style="width: auto; margin-right: 5px; margin-bottom: 0;">
             Auto Speak Descriptions
         </label>
+        <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
+            <input type="checkbox" id="myAutoLoadCheckbox" style="width: auto; margin-right: 5px; margin-bottom: 0;">
+            Auto Load Next Feed
+        </label>
+
     </div>
 
     <!-- Status and Output Area -->
@@ -164,11 +174,11 @@
     <textarea id="mySummaryOutputArea" readonly placeholder="Article titles and descriptions will be appended here."></textarea>
     
     <!-- Speech Buffer now has a default display style of none, but will be shown by debug button -->
-    <textarea id="mySpeechBuffer" readonly placeholder="Speech buffer (cleaned text) output."></textarea> 
+    <textarea id="mySpeechBuffer" readonly placeholder="Speech buffer (cleaned text) output." style="display: none;"></textarea>  
 
     <!-- Links Output Area - Now a scrollable container for history sections -->
-    <h2>Article Links History</h2>
-    <div id="myLinksHistoryContainer" style="border: 1px solid #ddd; padding: 10px; border-radius: 6px; min-height: 50px; background-color: #fafafa; max-height: 400px; overflow-y: auto;">
+    <h2>Article Links History (Resizable)</h2>
+    <div id="myLinksHistoryContainer">
         <p id="myLinksPlaceholder" style="color: #999; margin: 0;">Links will appear here after extraction.</p>
     </div>
 
@@ -186,7 +196,7 @@
     <h2>Debug Controls</h2>
     <div class="myControlGroup">
         <!-- Renamed function to myToggleDebug -->
-        <button id="myToggleDebugButton" onclick="myToggleDebug()" style="color: white; background-color: #ff9800; border: none; flex: 1;">Show/Hide Debug Textareas</button> 
+        <button id="myToggleDebugButton" onclick="myToggleDebug()" style="color: white; background-color: #ff9800; border: none; flex: 1;">Show/Hide Debug Textareas</button>  
         <button id="myClearLinksButton" onclick="myClearArticleLinks()" style="color: white; background-color: #dc3545; border: none; flex: 1;">Clear Article History</button>
     </div>
     <textarea id="myJsonDebugOutput" readonly placeholder="Raw JSON data of the current feed will appear here for debugging."
@@ -210,7 +220,6 @@
     const myMaxItemsToSummarize = 5; // Limit to 5 items per feed for speed
 
     let myTimerInterval = null;
-    // LLM/Summarizer functionality has been removed for mobile compatibility.
     let myIsProcessing = false;
 
     // TTS Globals
@@ -449,15 +458,17 @@
             mySetButtonStates(true, false);
         }
     }
-
-    /** Stops the speech. */
+    
+    /** Stops the speech and clears the buffer. */
     function myStopSpeech() {
-        mySpeechSynthesis.cancel();
-        // Clear the buffer when stopping
-        mySpeechBuffer.value = ''; 
-        myStatus.textContent = myIsProcessing ? 'Processing feed...' : 'Ready.';
-        myDynamicStatus.textContent = myIsProcessing ? 'Processing...' : 'Ready for processing.';
-        mySetButtonStates(false, false);
+        if (mySpeechSynthesis.speaking || mySpeechSynthesis.paused) {
+            mySpeechSynthesis.cancel();
+            // Clear the buffer when stopping
+            mySpeechBuffer.value = '';  
+            myStatus.textContent = myIsProcessing ? 'Processing feed...' : 'Ready.';
+            myDynamicStatus.textContent = myIsProcessing ? 'Processing...' : 'Ready for processing.';
+            mySetButtonStates(false, false);
+        }
     }
 
 
@@ -479,7 +490,7 @@
             const myRawContent = myItem.description || myItem.content || myItem.title;
 
             // Step 2: Clean the content (Remove HTML tags and limit length)
-            let myCleanedDescription = myRawContent.replace(/<[^>]+>/g, '').trim(); 
+            let myCleanedDescription = myRawContent.replace(/<[^>]+>/g, '').trim();  
             
             // Limit the description length to keep the output manageable
             const myMaxLength = 400;
@@ -502,7 +513,7 @@ ${myCleanedDescription}
             const myAnchor = document.createElement('a');
             myAnchor.href = myItem.link;
             myAnchor.target = '_blank';
-            myAnchor.textContent = myItem.title; 
+            myAnchor.textContent = myItem.title;  
             myAnchor.style.color = '#1a73e8';
             myAnchor.style.textDecoration = 'underline';
             
@@ -544,7 +555,7 @@ ${myCleanedDescription}
             }
             
             // Read the response body as text first
-            const myRawText = await myResponse.text(); 
+            const myRawText = await myResponse.text();  
             const myJsonData = JSON.parse(myRawText);
 
             // Populate the debug area with formatted JSON
@@ -564,7 +575,7 @@ ${myCleanedDescription}
             }
 
             const myFeedSection = document.createElement('div');
-            myFeedSection.style.marginBottom = '20px'; 
+            myFeedSection.style.marginBottom = '20px';  
             
             if (!myIsFirstSection) {
                 myFeedSection.style.paddingTop = '10px';
@@ -573,7 +584,7 @@ ${myCleanedDescription}
 
             const myFeedTitleHeading = document.createElement('h3');
             myFeedTitleHeading.textContent = myJsonData.feed.title;
-            myFeedTitleHeading.style.marginTop = '10px'; 
+            myFeedTitleHeading.style.marginTop = '10px';  
             myFeedTitleHeading.style.color = '#1a73e8';
             myFeedTitleHeading.style.fontSize = '1.1em';
             myFeedTitleHeading.style.fontWeight = 'bold';
@@ -614,8 +625,8 @@ ${myCleanedDescription}
             const myAutoLoadOnly = myAutoLoadCheckbox.checked && !myAutoSpeakCheckbox.checked;
 
             if (myAutoLoadOnly && myCurrentFeedIndex !== -1) {
-                 // Schedule the next load without blocking the current async function
-                 setTimeout(myProcessFeedsLoop, 500); 
+                // Schedule the next load without blocking the current async function
+                setTimeout(myProcessFeedsLoop, 500);  
             }
 
         } catch (myError) {
@@ -697,7 +708,7 @@ ${myCleanedDescription}
     }
     
     // =========================================================================
-    // INITIALIZATION
+    // INITIALIZATION & EVENT LISTENERS
     // =========================================================================
 
     /**
@@ -715,15 +726,24 @@ ${myCleanedDescription}
     // Add event listener for auto-load checkbox to start the loop immediately if checked
     myAutoLoadCheckbox.onchange = function() {
         if (this.checked) {
+            
+            // FIX: If the user manually set the selector back to the empty option
+            // while the internal index was still positive, reset the internal index
+            // to -1 so the loop starts from the beginning (index 0).
+            if (myFeedSelect.value === "") {
+                 myCurrentFeedIndex = -1;
+            }
+            
             // If the index is -1, it means we are starting a new loop. 
-            // If the user had a feed selected, start the new cycle from that point.
+            // If the user had a feed selected, set the starting point correctly.
             if (myCurrentFeedIndex === -1 && myFeedSelect.value) {
                 myCurrentFeedIndex = myAllFeedUrls.indexOf(myFeedSelect.value) - 1; // Subtract 1 so myProcessFeedsLoop() increments to the start feed
             }
             
-            // If Auto-Load is checked AND Auto-Speak is NOT checked, start the loop immediately
-            if (!myAutoSpeakCheckbox.checked) {
-                 myProcessFeedsLoop();
+            // FIX: Start the loop immediately if Auto-Speak is OFF, OR if Auto-Speak is ON but no feed is selected yet.
+            // This ensures the loop kicks off from the start when Auto-Speak is enabled but no feed has been loaded/spoken.
+            if (!myAutoSpeakCheckbox.checked || myFeedSelect.value === "") {
+                myProcessFeedsLoop();
             }
         } else {
              // Reset index only if stopped manually and no feed is selected
@@ -737,9 +757,17 @@ ${myCleanedDescription}
     myAutoSpeakCheckbox.onchange = function() {
         // If the user checks auto-speak while auto-load is checked, and we are not processing, start the loop.
         if (myAutoLoadCheckbox.checked && myAutoSpeakCheckbox.checked && !myIsProcessing) {
-            myProcessFeedsLoop();
+            // Since auto-load is checked and now auto-speak is checked, we need to check if the process needs to start.
+            // If no feed is selected, myCurrentFeedIndex will be -1, and myProcessFeedsLoop will select the first feed.
+            if (myFeedSelect.value === "") {
+                myProcessFeedsLoop();
+            }
+            // If a feed IS selected, we rely on the user to click "Speak" or change the feed manually to kick off the sequence.
         }
     };
+    
+    // MANDATORY FIX: Add unload listener to stop speech on navigation/close
+    window.onunload = myStopSpeech;
 
 
 </script>

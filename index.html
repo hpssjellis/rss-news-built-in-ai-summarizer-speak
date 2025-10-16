@@ -186,7 +186,7 @@
         <button id="mySpeakButton" onclick="mySpeakText()" style="flex: 1; color: white; background-color: #4CAF50; border: none;">Speak Output</button>
         <button id="myPauseButton" onclick="myPauseSpeech()" disabled style="flex: 1; color: white; background-color: #007bff; border: none;">Pause</button>
         <button id="myResumeButton" onclick="myResumeSpeech()" disabled style="flex: 1; color: white; background-color: #2196F3; border: none;">Resume</button>
-        <button id="myStopButton" onclick="myStopSpeech()" disabled style="flex: 1; color: white; background-color: #dc3545; border: none;">Stop</button>
+        <button id="myStopButton" onclick="()" disabled style="flex: 1; color: white; background-color: #dc3545; border: none;">Stop</button>
     </div>
     
     <!-- Debug Controls -->
@@ -744,7 +744,9 @@
             myCurrentFeedIndex = myFeedSelect.value ? myAllFeedUrls.indexOf(myFeedSelect.value) : -1;
         }
     };
-
+    
+    // MANDATORY FIX: Add unload listener to stop speech on navigation/close
+    window.onunload = myStopSpeech;
 </script>
 
 </body>
